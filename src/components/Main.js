@@ -5,6 +5,7 @@ import axios from "axios"
 import { Icon, Typography } from "@mui/material";
 import Webcam from "react-webcam"
 import { Button } from "@mui/material";
+import { useStopwatch } from 'react-timer-hook';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import ArrowRightOutlinedIcon from '@mui/icons-material/ArrowRightOutlined';
 import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
@@ -39,6 +40,16 @@ export default function Main(){
             return () => clearInterval(interval);
           }, []);
 
+        const {
+            seconds,
+            minutes,
+            hours,
+            isRunning,
+            start,
+            pause,
+            reset,
+          } = useStopwatch({ autoStart:false});
+
     return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
 
@@ -63,7 +74,10 @@ export default function Main(){
                     </Typography>
                 </Stack>
                 <Box className="timer" >
-                    Timer
+                    {hours!==0 && <span>{hours<10 && 0}{hours}</span>}
+                    {minutes!==0 && <span>:{minutes<10 && 0}{minutes}</span>}
+                    :{seconds<10 && 0}<span>{seconds}</span>
+                   
                 </Box>
                 <Webcam
                     width={800}
@@ -95,9 +109,10 @@ export default function Main(){
                     textTransform:'none',
                 }} 
                 startIcon={<HourglassTopIcon />}
+                onClick={isRunning? pause:start}
                 //endIcon={<ArrowRightOutlinedIcon />}
             >
-                <Typography variant="h6"> Start Focussing &gt; &gt;</Typography>  
+                <Typography variant="h6"> {isRunning? `Take a break!`: `Start Focussing >>`} </Typography>  
             </Button>
         </Box>
     </Box>)
