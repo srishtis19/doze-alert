@@ -17,10 +17,10 @@ export default function Main(){
 
         const submitImage = (blob) =>{
             let data = new FormData;
-            let URL = "http://localhost:4040/sendImageBlob";
-            console.log(blob)
+            let URL = "http://localhost:8080/sendImageBlob";
+            //console.log(blob)
             data.append('file',blob,'face_image');
-            console.log(...data) 
+            //console.log(...data) 
             
             axios.post(URL, data)
             .then(response => {
@@ -34,9 +34,9 @@ export default function Main(){
             const interval = setInterval(() => {
               const imageSrc = webcamRef.current.getScreenshot();
               const blob = makeblob(imageSrc)
-              console.log(blob)
+              //console.log(blob)
               submitImage(blob);
-            }, 5000);
+            }, 10000);
             return () => clearInterval(interval);
           }, []);
 
