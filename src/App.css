@@ -1,38 +1,48 @@
 .App {
-  text-align: center;
+  background-color: black;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.greetText {
+  padding-top:20px;
+  padding-bottom:25px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.menuButton.Mui-selected {
+ border-right: 4px solid #4285F4;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.listItem:hover {
+  opacity: 0.3;
+} 
+
+.webcam {
+  border-radius: 20px;
+  margin-bottom: 30px;
+  border:5px dashed #4285F4;
 }
 
-.App-link {
-  color: #61dafb;
+.startButton {
+  box-shadow: 0px 0px 24px rgba(41, 132, 255, 0.56);
+  border-radius: 8px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.webcamContainer {
+  position:relative
+}
+
+.alert,.timer{
+  position: absolute;
+  background: rgba(19, 21, 23, 0.63);
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
+  padding:10px;
+}
+
+.alert {
+  margin:25px 30px;
+}
+
+.timer {
+  margin-top:25px;
+  right:35px;
 }
