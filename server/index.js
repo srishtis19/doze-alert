@@ -29,7 +29,7 @@ const detect_faces = async (imageData) => {
       try {
           const response = await rekognitionClient.send(new DetectFacesCommand(params));
           console.log(response.FaceDetails[0].EyesOpen)
-          return (JSON.stringify(response.FaceDetails[0])); // For unit tests.
+          return (response.FaceDetails[0]); // For unit tests.
         } catch (err) {
           console.log("Error", err);
         }
@@ -45,7 +45,15 @@ app.post('/sendImageBlob',upload.single('file'),(req,res) =>{
     console.log(req.file.buffer)
     //res.send(req.file)
     let imageData = req.file.buffer;
-    const detectedFaceAttributes = detect_faces(imageData);
+    detect_faces(imageData).then((detectedFaceAttributes) => {
+        console.log(detectedFaceAttributes);
+        res.json({
+            EyesOpen:detectedFaceAttributes.EyesOpen,
+            MouthOpen:detectedFaceAttributes.MouthOpen
+        })
+    });
+    
+    
 
  })
 

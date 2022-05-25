@@ -14,6 +14,7 @@ import { makeblob } from "../blob";
 export default function Main(){
 
         const webcamRef = React.useRef(null);
+        const [state, setState] = React.useState("Focussed");
 
         const submitImage = (blob) =>{
             let data = new FormData;
@@ -24,7 +25,18 @@ export default function Main(){
             
             axios.post(URL, data)
             .then(response => {
-                console.log('response', response)
+                //console.log('response', response)
+                const faceAttributes = response.data
+                console.log(faceAttributes)
+                if(!faceAttributes.EyesOpen.Value){
+                    setState("Drowsiness Detected!")
+                }
+                else if(faceAttributes.MouthOpen.Value){
+                    setState("Yawn Detected!")
+                }
+                else {
+                    setState("Focussed")
+                }
               }).catch(error => {
                 console.log('error', error)
               })
@@ -36,7 +48,7 @@ export default function Main(){
               const blob = makeblob(imageSrc)
               //console.log(blob)
               submitImage(blob);
-            }, 10000);
+            }, 5000);
             return () => clearInterval(interval);
           }, []);
 
@@ -70,7 +82,7 @@ export default function Main(){
                         }}
                     />
                     <Typography variant="body1">
-                        Alert
+                        {state}
                     </Typography>
                 </Stack>
                 <Box className="timer" >
