@@ -10,37 +10,48 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import ArrowRightOutlinedIcon from '@mui/icons-material/ArrowRightOutlined';
 import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
 import { makeblob } from "../blob";
+import SleepAlert from "../utils/Alert";
+// import DrowsinessAlert from "../utils/Alert";
 
 export default function Main(){
 
+        
+
         const webcamRef = React.useRef(null);
-        const [state, setState] = React.useState("Focussed");
+        const [state, setState] = React.useState({
+            statusText:"Focussed",
+            alertText:"",
+            isOpen:false
+        });
         const [isMonitoring, setIsMonitoring] = React.useState(false)
+        const [eyesClosedArray,setEyesClosedArray]= React.useState([false,false,false,false,false]);
 
         const submitImage = (blob) =>{
-            // let data = new FormData;
-            // let URL = "http://localhost:8080/sendImageBlob";
-            // //console.log(blob)
-            // data.append('file',blob,'face_image');
-            // //console.log(...data) 
+            let data = new FormData;
+            let URL = "http://localhost:8080/sendImageBlob";
+            //console.log(blob)
+            data.append('file',blob,'face_image');
+            //console.log(...data) 
             
-            // axios.post(URL, data)
-            // .then(response => {
-            //     //console.log('response', response)
-            //     const faceAttributes = response.data
-            //     console.log(faceAttributes)
-            //     if(!faceAttributes.EyesOpen.Value){
-            //         setState("Drowsiness Detected!")
-            //     }
-            //     else if(faceAttributes.MouthOpen.Value){
-            //         setState("Yawn Detected!")
-            //     }
-            //     else {
-            //         setState("Focussed")
-            //     }
-            //   }).catch(error => {
-            //     console.log('error', error)
-            //   })
+            axios.post(URL, data)
+            .then(response => {
+                //console.log('response', response)
+                const faceAttributes = response.data
+                console.log(faceAttributes)
+                // if(!faceAttributes.EyesOpen.Value){
+                //     setState("Drowsiness Detected!")
+                // }
+                // else if(faceAttributes.MouthOpen.Value){
+                //     setState("Yawn Detected!")
+                // }
+                // else {
+                //     setState("Focussed")
+                // }
+                handleAlerts(faceAttributes)
+               
+              }).catch(error => {
+                console.log('error', error)
+              })
             console.log("submitted!")
         }
 
@@ -67,6 +78,7 @@ export default function Main(){
           } = useStopwatch({ autoStart:false});
         
         const handleMonitoring = () =>{
+
             if(isRunning){
                 pause();
             }
@@ -76,10 +88,58 @@ export default function Main(){
             setIsMonitoring((prevState)=>!prevState)
         }
 
+        const handleAlerts = (faceData) =>{
+
+            console.log(eyesClosedArray)
+            const newArray = eyesClosedArray.map(value => {return value})
+            newArray.pop();
+            newArray.push(!faceData.EyesOpen.Value);
+            setEyesClosedArray(newArray)
+            console.log(eyesClosedArray)
+
+            if(eyesClosedArray.every(element => element===true)){
+                console.log("sound alarm!")
+                //setIsMonitoring(false);
+                
+                //sound alarm
+                //set isMonitoring as false
+                //create a modal
+                //set isMonitroing as true only after modal closed
+                //last 3 in another component
+            }
+        
+            else if(!faceData.EyesOpen.Value){
+                setState({
+                    statusText:"Drowsiness Detected!",
+                    alertText:"Some motivational text regarding drowsiness",
+                    isOpen:true
+                })
+
+            }
+        
+            else if(faceData.MouthOpen.Value){
+                setState({
+                    statusText:"Yawning Detected!",
+                    alertText:"Some motivational text regarding yawn",
+                    isOpen:true
+                })
+
+            }
+
+            else {
+                setState({
+                    statusText:"Focussed",
+                    alertText:"",
+                    isOpen:false
+                });
+            }
+
+        }
+
 
     return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-
+        <SleepAlert state={state} setState={setState}/>
         <Box 
             sx={{ 
                 display: 'flex',
@@ -97,7 +157,7 @@ export default function Main(){
                         }}
                     />
                     <Typography variant="body1">
-                        {state}
+                        {state.statusText}
                     </Typography>
                 </Stack>
                 <Box className="timer" >
