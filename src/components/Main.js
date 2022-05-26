@@ -111,7 +111,7 @@ export default function Main(){
             //     //last 3 in another component
             // }
             console.log(alertCount)
-            if(alertCount===5){
+            if(alertCount===3){
                 //sound alarm and modal
                 setIsMonitoring(false)
                 setIsAlarmOpen(true)

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
+import { useNavigate } from "react-router-dom";
 import MuiDrawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -87,6 +88,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function Navbar() {
+
+  const navigate = useNavigate();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [isSelected,setIsSelected] = React.useState([true,false,false]);
@@ -104,6 +107,15 @@ export default function Navbar() {
       return index === i? true :false;
     })
     setIsSelected(newState);
+    if(i===0){
+      navigate('/');
+    }
+    else if(i===1){
+      navigate('/view-analytics')
+    }
+    else {
+      navigate('/settings')
+    }
   };
 
   return (

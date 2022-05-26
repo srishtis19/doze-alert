@@ -46,3 +46,26 @@
   margin-top:25px;
   right:35px;
 }
+
+.settings--title {
+  /* margin-top: 50px;
+  margin-left: 100px; */
+  font-weight: bolder;
+  margin-bottom: 50px;
+}
+
+.heading {
+  margin-bottom: 0;
+}
+
+.subheading {
+  margin-top: 5px;
+  font-weight:400;
+  opacity: 0.5;
+  font-size: 14px;
+}
+
+.option {
+  font-weight: bolder;
+}
+

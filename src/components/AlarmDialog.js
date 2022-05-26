@@ -34,9 +34,10 @@ export default function AlarmDialog(props){
 
     return(
         <Dialog
-        open={true}
+        open={props.open}
         onClose={handleClose}
         TransitionProps={{onEnter:handleEnter}} 
+        disableEscapeKeyDown
         >
         <DialogTitle sx={{textAlign:'center'}}>
           {"User is Sleeping!"}

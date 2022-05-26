@@ -1,8 +1,11 @@
 import './App.css';
 import { createTheme,ThemeProvider } from '@mui/material/styles';
+import {BrowserRouter, Routes, Route } from "react-router-dom";
 import Main from"./components/Main"
 import Navbar from"./components/Navbar"
+import ViewAnalytics from './components/ViewAnalytics';
 import Box from '@mui/material/Box';
+import Settings from './components/Settings';
 
 
 const theme = createTheme({
@@ -31,12 +34,20 @@ const theme = createTheme({
 })
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ display: 'flex' }}>
-        <Navbar />
-        <Main />
-      </Box>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <Box sx={{ display: 'flex' }}>
+          <Navbar />
+          <Routes>
+            <Route path='/' element={<Main />} />
+            <Route path='settings' element={<Settings />} />
+            <Route path='view-analytics' element={<ViewAnalytics />} />
+          </Routes>
+          
+        </Box>
+      </ThemeProvider>
+    </BrowserRouter>
+    
   );
 }
 
