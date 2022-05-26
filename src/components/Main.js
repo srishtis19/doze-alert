@@ -10,7 +10,8 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import ArrowRightOutlinedIcon from '@mui/icons-material/ArrowRightOutlined';
 import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
 import { makeblob } from "../blob";
-import SleepAlert from "../utils/Alert";
+import SleepAlert from "./Alert";
+import AlarmDialog from "./AlarmDialog";
 // import DrowsinessAlert from "../utils/Alert";
 
 export default function Main(){
@@ -23,8 +24,9 @@ export default function Main(){
             alertText:"",
             isOpen:false
         });
+        const [isAlarmOpen,setIsAlarmOpen] = React.useState(false)
         const [isMonitoring, setIsMonitoring] = React.useState(false)
-        const [eyesClosedArray,setEyesClosedArray]= React.useState([false,false,false,false,false]);
+        var alertCount = 0
 
         const submitImage = (blob) =>{
             let data = new FormData;
@@ -86,26 +88,36 @@ export default function Main(){
                 start();
             }
             setIsMonitoring((prevState)=>!prevState)
+            alertCount = 0
         }
 
         const handleAlerts = (faceData) =>{
 
-            console.log(eyesClosedArray)
-            const newArray = eyesClosedArray.map(value => {return value})
-            newArray.pop();
-            newArray.push(!faceData.EyesOpen.Value);
-            setEyesClosedArray(newArray)
-            console.log(eyesClosedArray)
+            // console.log(eyesClosedArray)
+            // const newArray = eyesClosedArray.map(value => {return value})
+            // newArray.pop();
+            // newArray.push(!faceData.EyesOpen.Value);
+            // setEyesClosedArray(newArray)
+            // console.log(eyesClosedArray)
 
-            if(eyesClosedArray.every(element => element===true)){
-                console.log("sound alarm!")
-                //setIsMonitoring(false);
+            // if(eyesClosedArray.every(element => element===true)){
+            //     console.log("sound alarm!")
+            //     //setIsMonitoring(false);
                 
-                //sound alarm
-                //set isMonitoring as false
-                //create a modal
-                //set isMonitroing as true only after modal closed
-                //last 3 in another component
+            //     //sound alarm
+            //     //set isMonitoring as false
+            //     //create a modal
+            //     //set isMonitroing as true only after modal closed
+            //     //last 3 in another component
+            // }
+            console.log(alertCount)
+            if(alertCount===5){
+                //sound alarm and modal
+                setIsMonitoring(false)
+                setIsAlarmOpen(true)
+                console.log("User is Sleeping!")
+                
+                
             }
         
             else if(!faceData.EyesOpen.Value){
@@ -114,6 +126,8 @@ export default function Main(){
                     alertText:"Some motivational text regarding drowsiness",
                     isOpen:true
                 })
+                alertCount = alertCount+1;
+                
 
             }
         
@@ -123,7 +137,7 @@ export default function Main(){
                     alertText:"Some motivational text regarding yawn",
                     isOpen:true
                 })
-
+                
             }
 
             else {
@@ -132,6 +146,7 @@ export default function Main(){
                     alertText:"",
                     isOpen:false
                 });
+                alertCount = 0;
             }
 
         }
@@ -140,6 +155,11 @@ export default function Main(){
     return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <SleepAlert state={state} setState={setState}/>
+        <AlarmDialog 
+            open = {isAlarmOpen} 
+            setOpen = {setIsAlarmOpen}
+            setIsMonitoring = {setIsMonitoring}
+            pause = {pause} />
         <Box 
             sx={{ 
                 display: 'flex',
