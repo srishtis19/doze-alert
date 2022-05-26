@@ -6,7 +6,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 import industryBaby from '../assets/sounds/industry_baby.mp3';
+import { textAlign } from "@mui/system";
+
 
 export default function AlarmDialog(props){
     console.log(props)
@@ -31,17 +34,20 @@ export default function AlarmDialog(props){
 
     return(
         <Dialog
-        open={props.open}
+        open={true}
         onClose={handleClose}
-        TransitionProps={{onEnter:handleEnter}}
+        TransitionProps={{onEnter:handleEnter}} 
         >
-        <DialogTitle>
+        <DialogTitle sx={{textAlign:'center'}}>
           {"User is Sleeping!"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Let Google help apps determine location. This means sending anonymous
-            location data to Google, even when no apps are running.
+            <Stack direction="row" alignItems="center">
+                <img src="https://media.giphy.com/media/l4HodvFAU681KEBwI/giphy.gif" width={250} />
+                Let Google help apps determine location. This means sending anonymous
+                location data to Google, even when no apps are running.
+            </Stack>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
