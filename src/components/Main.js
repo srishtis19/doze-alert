@@ -26,7 +26,9 @@ export default function Main(props){
         });
         const [isAlarmOpen,setIsAlarmOpen] = React.useState(false)
         const [isMonitoring, setIsMonitoring] = React.useState(false)
-        var alertCount = 0
+        var alarmCount = 0
+        var sleepAlertCount = 0
+        var yawnAlertCount =0
 
         const submitImage = (blob) =>{
             let data = new FormData;
@@ -88,7 +90,9 @@ export default function Main(props){
                 start();
             }
             setIsMonitoring((prevState)=>!prevState)
-            alertCount = 0
+            sleepAlertCount = 0
+            yawnAlertCount = 0
+            alarmCount = 0
         }
 
         const handleAlerts = (faceData) =>{
@@ -110,43 +114,105 @@ export default function Main(props){
             //     //set isMonitroing as true only after modal closed
             //     //last 3 in another component
             // }
-            console.log(alertCount)
-            if(alertCount===3){
-                //sound alarm and modal
-                setIsMonitoring(false)
-                setIsAlarmOpen(true)
-                console.log("User is Sleeping!")
+            // console.log(alertCount)
+            // if(alertCount===3){
+            //     //sound alarm and modal
+            //     setIsMonitoring(false)
+            //     setIsAlarmOpen(true)
+            //     console.log("User is Sleeping!")
                 
                 
-            }
+            // }
         
-            else if(!faceData.EyesOpen.Value){
-                setState({
-                    statusText:"Drowsiness Detected!",
-                    alertText:"Some motivational text regarding drowsiness",
-                    isOpen:true
-                })
-                alertCount = alertCount+1;
+            // else if(!faceData.EyesOpen.Value){
+            //     setState({
+            //         statusText:"Drowsiness Detected!",
+            //         alertText:"Some motivational text regarding drowsiness",
+            //         isOpen:true
+            //     })
+            //     alertCount = alertCount+1;
                 
 
-            }
+            // }
         
-            else if(faceData.MouthOpen.Value){
+            // else if(faceData.MouthOpen.Value){
+            //     setState({
+            //         statusText:"Yawning Detected!",
+            //         alertText:"Some motivational text regarding yawn",
+            //         isOpen:true
+            //     })
+                
+            // }
+
+            // else {
+            //     setState({
+            //         statusText:"Focussed",
+            //         alertText:"",
+            //         isOpen:false
+            //     });
+            //     alertCount = 0;
+            // }
+
+            if(faceData.MouthOpen.Value){
+                yawnAlertCount++
+                sleepAlertCount = 0
+                alarmCount++
+            }
+
+            else if(!faceData.EyesOpen.Value){
+                sleepAlertCount++
+                yawnAlertCount = 0
+                alarmCount++
+            }
+            else {
+                sleepAlertCount = 0
+                yawnAlertCount = 0
+                alarmCount = 0
+            }
+
+            if(alarmCount===6){
+
+                alarmCount = 0
+                setIsMonitoring(false)
+                setIsAlarmOpen(true)
+
+                //sound alarm
+                //stop monitoring
+                //reset alarm count
+
+            }
+
+            else if(yawnAlertCount===2){
+                //sound alert
+                //reset yawn alert count
+                yawnAlertCount = 0
                 setState({
                     statusText:"Yawning Detected!",
                     alertText:"Some motivational text regarding yawn",
                     isOpen:true
                 })
-                
+
+
+            }
+
+            else if(sleepAlertCount===2){
+                //sound alert
+                //reset sleep alert count
+                sleepAlertCount = 0
+                setState({
+                    statusText:"Drowsiness Detected!",
+                    alertText:"Some motivational text regarding drowsiness",
+                    isOpen:true
+                })
             }
 
             else {
+                //focussed state
                 setState({
                     statusText:"Focussed",
                     alertText:"",
                     isOpen:false
                 });
-                alertCount = 0;
             }
 
         }
