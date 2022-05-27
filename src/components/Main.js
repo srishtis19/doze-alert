@@ -28,20 +28,22 @@ export default function Main(props){
         const [isMonitoring, setIsMonitoring] = React.useState(false)
         var alarmCount = 0
         var sleepAlertCount = 0
-        var yawnAlertCount =0
+        var yawnAlertCount = 0
+        var phoneCount = 0
 
         const submitImage = (blob) =>{
             let data = new FormData;
             let URL = "http://localhost:8080/sendImageBlob";
             //console.log(blob)
             data.append('file',blob,'face_image');
+            data.append('useFocusMode',props.focusMode?true:false);
             //console.log(...data) 
             
             axios.post(URL, data)
             .then(response => {
                 //console.log('response', response)
-                const faceAttributes = response.data
-                console.log(faceAttributes)
+                const Attributes = response.data
+                console.log(Attributes)
                 // if(!faceAttributes.EyesOpen.Value){
                 //     setState("Drowsiness Detected!")
                 // }
@@ -51,7 +53,13 @@ export default function Main(props){
                 // else {
                 //     setState("Focussed")
                 // }
-                handleAlerts(faceAttributes)
+                if(props.focusMode){
+                    handleFocusAlerts(Attributes)
+                }
+                else{
+                    handleSleepAlerts(Attributes)
+                }
+                
                
               }).catch(error => {
                 console.log('error', error)
@@ -95,7 +103,7 @@ export default function Main(props){
             alarmCount = 0
         }
 
-        const handleAlerts = (faceData) =>{
+        const handleSleepAlerts = (faceData) =>{
 
             // console.log(eyesClosedArray)
             // const newArray = eyesClosedArray.map(value => {return value})
@@ -182,7 +190,7 @@ export default function Main(props){
 
             }
 
-            else if(yawnAlertCount===2){
+            else if(yawnAlertCount===1){
                 //sound alert
                 //reset yawn alert count
                 yawnAlertCount = 0
@@ -213,6 +221,28 @@ export default function Main(props){
                     alertText:"",
                     isOpen:false
                 });
+            }
+
+        }
+
+        const handleFocusAlerts = (Attributes) => {
+
+            if(Attributes.phoneDetected){
+                phoneCount++   
+            }
+            else {
+                phoneCount = 0
+                handleSleepAlerts(Attributes)
+            }
+            if(phoneCount==3){
+
+                phoneCount=0
+                setState({
+                    statusText:"Using Phone!",
+                    alertText:"Don't use your phone pls",
+                    isOpen:true
+                })
+                
             }
 
         }

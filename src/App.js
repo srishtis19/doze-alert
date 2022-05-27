@@ -40,6 +40,7 @@ function App() {
     alarmTone:'Glory',
     volume:70
   })
+  const [focusMode,setFocusMode] = React.useState(false)
 
   return (
     <BrowserRouter>
@@ -47,8 +48,27 @@ function App() {
         <Box sx={{ display: 'flex' }}>
           <Navbar />
           <Routes>
-            <Route path='/' element={<Main notifOptions={notifOptions} setNotifOptions={setNotifOptions}/>} />
-            <Route path='settings' element={<Settings notifOptions={notifOptions} setNotifOptions={setNotifOptions}/>} />
+            <Route 
+              path='/' 
+              element={
+                <Main 
+                  notifOptions={notifOptions} 
+                  focusMode={focusMode}
+                  setFocusMode={setFocusMode}
+                />
+              } 
+            />
+            <Route 
+              path='settings' 
+              element={
+                <Settings 
+                  notifOptions={notifOptions} 
+                  setNotifOptions={setNotifOptions}
+                  focusMode={focusMode}
+                  setFocusMode={setFocusMode}
+                />
+              } 
+            />
             <Route path='view-analytics' element={<ViewAnalytics />} />
           </Routes>
           
