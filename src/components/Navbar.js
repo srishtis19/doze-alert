@@ -16,7 +16,7 @@ import ListItemText from '@mui/material/ListItemText';
 import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import SettingsIcon from '@mui/icons-material/Settings';
-
+import { useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -29,7 +29,9 @@ const openedMixin = (theme) => ({
   overflowX: 'hidden',
 });
 
-const iconList = [<VideocamOutlinedIcon></VideocamOutlinedIcon>,<AssessmentOutlinedIcon></AssessmentOutlinedIcon>,<SettingsIcon></SettingsIcon>]
+const iconList = [<VideocamOutlinedIcon></VideocamOutlinedIcon>,
+                  <AssessmentOutlinedIcon></AssessmentOutlinedIcon>,
+                  <SettingsIcon></SettingsIcon>]
 
 const closedMixin = (theme) => ({
   transition: theme.transitions.create('width', {
@@ -92,7 +94,21 @@ export default function Navbar() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [isSelected,setIsSelected] = React.useState([true,false,false]);
+
+  const Location = new useLocation();
+  let currComponent
+
+  switch(Location.pathname) {
+    case "/":
+      currComponent = "Video"
+      break
+    case "/view-analytics":
+      currComponent = "View Analytics"
+      break
+    case "/settings":
+      currComponent = "Settings"
+  }
+  const [isSelected,setIsSelected] = React.useState(currComponent)
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -102,20 +118,21 @@ export default function Navbar() {
     setOpen(false);
   };
 
-  const handleSelected = (i) => {
-    const newState = isSelected.map((value,index)=>{
-      return index === i? true :false;
-    })
-    setIsSelected(newState);
-    if(i===0){
-      navigate('/');
+  const handleSelected = (text) => {
+    setIsSelected(text)
+    switch(text) {
+      case "Video":
+        navigate('/')
+        break;
+      
+      case "View Analytics":
+        navigate('/view-analytics')
+        break;
+        
+      case "Settings":
+        navigate('/settings')
     }
-    else if(i===1){
-      navigate('/view-analytics')
-    }
-    else {
-      navigate('/settings')
-    }
+
   };
 
   return (
@@ -159,15 +176,15 @@ export default function Navbar() {
             justifyContent:'center',
             height:'75%'
           }}>
-          {['Video', 'View Analytics', 'Settings'].map((text, index) => (
-            <ListItem key={text} className="menuButton"  selected={isSelected[index]} >
+          {['Video', 'View Analytics', 'Settings'].map((text,index) => (
+            <ListItem key={text} className="menuButton"  selected={text===isSelected? true:false} >
               <ListItemButton
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
                 }}
-                onClick={()=>handleSelected(index)}
+                onClick={()=>handleSelected(text)}
                 className="listItem"
               >
                 <ListItemIcon
@@ -175,7 +192,7 @@ export default function Navbar() {
                     minWidth: 0,
                     mr: open ? 3 : 'auto',
                     justifyContent: 'center',
-                    color: isSelected[index]? '#4285F4': 'white'
+                    color: text===isSelected? '#4285F4': 'white'
                   }} 
                 >
                   {iconList[index]}
@@ -184,7 +201,7 @@ export default function Navbar() {
                   primary={text} 
                   sx={{ 
                     opacity: open ? 1 : 0,
-                    color: isSelected[index]? '#4285F4': 'white' 
+                    color: text===isSelected?'#4285F4': 'white' 
                   }}
                 />
               </ListItemButton>
