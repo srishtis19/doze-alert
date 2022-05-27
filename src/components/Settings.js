@@ -1,8 +1,5 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import Avatar from '@mui/material/Avatar';
-import CameraAltOutlinedIcon from '@mui/icons-material/CameraAltOutlined';
-import Typography from "@mui/material/Typography";
 import  Divider  from "@mui/material/Divider";
 import Select from '@mui/material/Select';
 import FormControl from "@mui/material/FormControl";
@@ -15,18 +12,65 @@ import VolumeUp from '@mui/icons-material/VolumeUp';
 import Switch from '@mui/material/Switch';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import TrackChangesTwoToneIcon from '@mui/icons-material/TrackChangesTwoTone';
+import useSound from 'use-sound'
+import Bell from '../assets/sounds/alerts/Bell.mp3'
+import Bubble from '../assets/sounds/alerts/Bubble.mp3'
+import Chime from '../assets/sounds/alerts/Chime.mp3'
+import Doorbell from '../assets/sounds/alerts/Doorbell.mp3'
+import Interface from '../assets/sounds/alerts/Interface.mp3'
+import Positive from '../assets/sounds/alerts/Positive.mp3'
+import Glory from '../assets/sounds/alarms/Glory.mp3'
+import Morning from '../assets/sounds/alarms/Morning.mp3'
+import Phone from '../assets/sounds/alarms/Phone.mp3'
+import Rain from '../assets/sounds/alarms/Rain.mp3'
+import Work from '../assets/sounds/alarms/Work.mp3'
 
 export default function Settings(){
 
-    const alertToneOptions = ['Bell']
-    const alarmToneOptions = ['Bell']
+    const alertToneOptions = ['Bell','Bubble','Chime','Doorbell','Interface','Positive']
+    const alarmToneOptions = ['Glory','Morning','Phone','Rain','Work']
 
     const [notifOptions, setNotifOptions] = React.useState({
         alertTone:'Bell',
-        alarmTone:'Bell',
+        alarmTone:'Glory',
         volume:70
     })
     const [focusMode,setFocusMode] = React.useState(false)
+
+    const [playBell] = useSound(Bell)
+    const [playBubble] = useSound(Bubble)
+    const [playChime] = useSound(Chime)
+    const [playDoorbell] = useSound(Doorbell)
+    const [playInterface] = useSound(Interface)
+    const [playPositive] = useSound(Positive)
+    const [playGlory] = useSound(Glory,{
+        sprite: {
+            sample:[0,3000]
+        }
+    })
+    const [playMorning] = useSound(Morning,{
+        sprite: {
+            sample:[0,3000]
+        }
+    })
+    const [playPhone] = useSound(Phone,{
+        sprite: {
+            sample:[0,3000]
+        }
+    })
+    const [playRain] = useSound(Rain,{
+        sprite: {
+            sample:[0,3000]
+        }
+    })
+    const [playWork] = useSound(Work,{
+        sprite: {
+            sample:[0,3000]
+        }
+    })
+
+    const playAlerts = [playBell,playBubble,playChime,playDoorbell,playInterface,playPositive]
+    const playAlarms = [playGlory,playMorning,playPhone,playRain,playWork]
 
     const changeAlertTone = (event) => {
         setNotifOptions({
@@ -52,6 +96,7 @@ export default function Settings(){
     const changeMode = (event) => {
         setFocusMode(event.target.checked)
     }
+
 
     return(
 
@@ -85,7 +130,9 @@ export default function Settings(){
                         onChange={changeAlertTone}
                         defaultValue="Bell"
                     >
-                        {alertToneOptions.map((tone)=> (<MenuItem value={tone}>{tone}</MenuItem>))}
+                        {alertToneOptions.map((tone,index)=> (
+                            <MenuItem className="listItem"value={tone} onClick={playAlerts[index]}>{tone}</MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
             </Stack>
@@ -104,9 +151,14 @@ export default function Settings(){
                         value={notifOptions.alarmTone}
                         label="Alarm Tone"
                         onChange={changeAlarmTone}
-                        defaultValue="Bell"
+                        defaultValue="Glory"
                     >
-                        {alarmToneOptions.map((tone)=> (<MenuItem value={tone}>{tone}</MenuItem>))}
+                        {alarmToneOptions.map((tone,index)=> (
+                            <MenuItem 
+                                value={tone} 
+                                className="listItem" 
+                                onClick={()=>playAlarms[index]({id:'sample'})}>{tone}</MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
             </Stack>

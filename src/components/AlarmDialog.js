@@ -7,14 +7,14 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import industryBaby from '../assets/sounds/industry_baby.mp3';
+import Glory from '../assets/sounds/alarms/Glory.mp3';
 import { textAlign } from "@mui/system";
 
 
 export default function AlarmDialog(props){
     console.log(props)
 
-    const [play,{stop}] = useSound(industryBaby);
+    const [play,{stop}] = useSound(Glory);
 
     const handleClose = ()=>{
         stop();
