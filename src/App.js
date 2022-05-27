@@ -6,6 +6,7 @@ import Navbar from"./components/Navbar"
 import ViewAnalytics from './components/ViewAnalytics';
 import Box from '@mui/material/Box';
 import Settings from './components/Settings';
+import React from 'react';
 
 
 const theme = createTheme({
@@ -33,14 +34,21 @@ const theme = createTheme({
 
 })
 function App() {
+
+  const [notifOptions, setNotifOptions] = React.useState({
+    alertTone:'Bell',
+    alarmTone:'Glory',
+    volume:70
+  })
+
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <Box sx={{ display: 'flex' }}>
           <Navbar />
           <Routes>
-            <Route path='/' element={<Main />} />
-            <Route path='settings' element={<Settings />} />
+            <Route path='/' element={<Main notifOptions={notifOptions} setNotifOptions={setNotifOptions}/>} />
+            <Route path='settings' element={<Settings notifOptions={notifOptions} setNotifOptions={setNotifOptions}/>} />
             <Route path='view-analytics' element={<ViewAnalytics />} />
           </Routes>
           

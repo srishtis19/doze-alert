@@ -4,13 +4,17 @@ import { Snackbar } from '@mui/material';
 import { Alert } from '@mui/material';
 import { Slide } from '@mui/material';
 
-import Bell from '../assets/sounds/alerts/Bell.mp3';
+//import Bell from '../assets/sounds/alerts/Bell.mp3';
 
 export default function SleepAlert(props) {
 
     console.log(props)
 
-    const [play] = useSound(Bell);
+    const alertTone = props.notifOptions.alertTone
+    const volume = props.notifOptions.volume/100
+    const alertUrl = `${process.env.PUBLIC_URL}/sounds/alerts/${alertTone}.mp3`
+
+    const [play] = useSound(alertUrl,{volume:volume});
     const handleClose = ()=>{
         props.setState({
             ...props.state,

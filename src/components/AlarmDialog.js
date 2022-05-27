@@ -7,14 +7,17 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import Glory from '../assets/sounds/alarms/Glory.mp3';
+// import Glory from '../assets/sounds/alarms/Glory.mp3';
 import { textAlign } from "@mui/system";
 
 
 export default function AlarmDialog(props){
     console.log(props)
 
-    const [play,{stop}] = useSound(Glory);
+    const alarmTone = props.notifOptions.alarmTone
+    const volume = props.notifOptions.volume/100
+    const alarmUrl = `${process.env.PUBLIC_URL}/sounds/alarms/${alarmTone}.mp3`
+    const [play,{stop}] = useSound(alarmUrl,{volume:volume});
 
     const handleClose = ()=>{
         stop();

@@ -14,7 +14,7 @@ import SleepAlert from "./Alert";
 import AlarmDialog from "./AlarmDialog";
 // import DrowsinessAlert from "../utils/Alert";
 
-export default function Main(){
+export default function Main(props){
 
         
 
@@ -154,12 +154,18 @@ export default function Main(){
 
     return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <SleepAlert state={state} setState={setState}/>
+        <SleepAlert 
+            state={state} 
+            setState={setState} 
+            notifOptions = {props.notifOptions} 
+        />
         <AlarmDialog 
             open = {isAlarmOpen} 
             setOpen = {setIsAlarmOpen}
             setIsMonitoring = {setIsMonitoring}
-            pause = {pause} />
+            pause = {pause}
+            notifOptions = {props.notifOptions} 
+        />
         <Box 
             sx={{ 
                 display: 'flex',

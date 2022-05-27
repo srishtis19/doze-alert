@@ -25,16 +25,16 @@ import Phone from '../assets/sounds/alarms/Phone.mp3'
 import Rain from '../assets/sounds/alarms/Rain.mp3'
 import Work from '../assets/sounds/alarms/Work.mp3'
 
-export default function Settings(){
+export default function Settings({notifOptions,setNotifOptions}){
 
     const alertToneOptions = ['Bell','Bubble','Chime','Doorbell','Interface','Positive']
     const alarmToneOptions = ['Glory','Morning','Phone','Rain','Work']
 
-    const [notifOptions, setNotifOptions] = React.useState({
-        alertTone:'Bell',
-        alarmTone:'Glory',
-        volume:70
-    })
+    // const [notifOptions, setNotifOptions] = React.useState({
+    //     alertTone:'Bell',
+    //     alarmTone:'Glory',
+    //     volume:70
+    // })
     const [focusMode,setFocusMode] = React.useState(false)
 
     const [playBell] = useSound(Bell)
