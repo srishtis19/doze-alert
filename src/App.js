@@ -1,15 +1,15 @@
 import './App.css';
+import React from 'react';
 import { createTheme,ThemeProvider } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import {BrowserRouter, Routes, Route } from "react-router-dom";
 import Main from"./components/Main"
 import Navbar from"./components/Navbar"
 import ViewAnalytics from './components/ViewAnalytics';
-import Box from '@mui/material/Box';
 import Settings from './components/Settings';
-import React from 'react';
-import TestButton from './components/Test';
 
 
+//Custom theme for the application 
 const theme = createTheme({
   palette: {
     mode:"dark",
@@ -34,6 +34,7 @@ const theme = createTheme({
   }
 
 })
+
 function App() {
 
   const [notifOptions, setNotifOptions] = React.useState({
@@ -44,6 +45,7 @@ function App() {
   const [focusMode,setFocusMode] = React.useState(false)
 
   return (
+    
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <Box sx={{ display: 'flex' }}>
@@ -72,7 +74,6 @@ function App() {
             />
             <Route path='view-analytics' element={<ViewAnalytics />} />
           </Routes>
-          {/* <TestButton /> */}
         </Box>
       </ThemeProvider>
     </BrowserRouter>

@@ -1,5 +1,8 @@
+//This function converts data URL image format to Blob Object
 export const makeblob = function (dataURL) {
+
   var BASE64_MARKER = ';base64,';
+
   if (dataURL.indexOf(BASE64_MARKER) == -1) {
       var parts = dataURL.split(',');
       var contentType = parts[0].split(':')[1];

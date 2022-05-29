@@ -1,6 +1,6 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import  Divider  from "@mui/material/Divider";
+import Divider from "@mui/material/Divider";
 import Select from '@mui/material/Select';
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
@@ -30,19 +30,15 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
     const alertToneOptions = ['Bell','Bubble','Chime','Doorbell','Interface','Positive']
     const alarmToneOptions = ['Glory','Morning','Phone','Rain','Work']
 
-    // const [notifOptions, setNotifOptions] = React.useState({
-    //     alertTone:'Bell',
-    //     alarmTone:'Glory',
-    //     volume:70
-    // })
-
-
+    //React hooks for various alert sounds
     const [playBell] = useSound(Bell)
     const [playBubble] = useSound(Bubble)
     const [playChime] = useSound(Chime)
     const [playDoorbell] = useSound(Doorbell)
     const [playInterface] = useSound(Interface)
     const [playPositive] = useSound(Positive)
+
+    //React hooks for various alarm sounds(only first 3 seconds)
     const [playGlory] = useSound(Glory,{
         sprite: {
             sample:[0,3000]
@@ -72,6 +68,7 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
     const playAlerts = [playBell,playBubble,playChime,playDoorbell,playInterface,playPositive]
     const playAlarms = [playGlory,playMorning,playPhone,playRain,playWork]
 
+    //functions to handle setting changes done by user
     const changeAlertTone = (event) => {
         setNotifOptions({
             ...notifOptions,
@@ -107,6 +104,7 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
                 width:'50%'
             }}
         >
+            {/* Notification Section of Setting Page */}
             <h1 className="settings--title">Settings</h1>
             <Stack spacing={2} direction="row" alignItems="center" className="heading">
                 <NotificationsActiveIcon/>
@@ -114,6 +112,8 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
             </Stack>
             <h4 className="subheading">Change your notifcation preferences here</h4>
             <Divider />
+
+            {/* Alert Sound Subsection */}
             <Stack direction="row" alignItems="center" sx={{marginBlock:'20px'}} >
                 <p className="option">Alert Sound</p>
                 <FormControl 
@@ -123,7 +123,9 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
                         marginRight:'75px'
                     }}
                     size="small">
+
                     <InputLabel>Alert Sound</InputLabel>
+
                     <Select
                         value={notifOptions.alertTone}
                         label="Alert Tone"
@@ -134,9 +136,12 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
                             <MenuItem className="listItem"value={tone} onClick={playAlerts[index]}>{tone}</MenuItem>
                         ))}
                     </Select>
+
                 </FormControl>
             </Stack>
             <Divider />
+            
+            {/* Alarm Sound Subsection */}
             <Stack direction="row" alignItems="center" sx={{marginBlock:'20px'}} >
                 <p className="option">Alarm Sound</p>
                 <FormControl 
@@ -146,7 +151,9 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
                         marginRight:'75px'
                     }}
                     size="small">
+
                     <InputLabel>Alarm Sound</InputLabel>
+
                     <Select
                         value={notifOptions.alarmTone}
                         label="Alarm Tone"
@@ -160,9 +167,12 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
                                 onClick={()=>playAlarms[index]({id:'sample'})}>{tone}</MenuItem>
                         ))}
                     </Select>
+
                 </FormControl>
             </Stack>
             <Divider />
+            
+            {/* Volume Subsection */}
             <Stack  direction="row" alignItems="center" sx={{marginBlock:'20px'}} >
                 <p className="option">Volume</p>
                 <Stack 
@@ -180,6 +190,8 @@ export default function Settings({notifOptions,setNotifOptions,focusMode,setFocu
                 </Stack>  
             </Stack> 
             <Divider /> 
+            
+            {/* Focus Mode Section for Settings Page*/}
             <Box sx={{marginTop:'60px'}}>
                 <Stack direction="row" alignItems="end">
                     <Box>

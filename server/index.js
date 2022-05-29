@@ -5,23 +5,23 @@ var bodyParser = require('body-parser');
 const app = express();
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
-// const upload = multer({ dest: 'uploads/' })
 var jsonParser = bodyParser.json()
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 app.use(cors())
+
 const port = 8080;
+
 const {RekognitionClient, DetectFacesCommand, DetectLabelsCommand} = require('@aws-sdk/client-rekognition');
 const MongoClient = require('mongodb').MongoClient
 
-// import { DetectFacesCommand } from  "@aws-sdk/client-rekognition";
-// import  { RekognitionClient } from "@aws-sdk/client-rekognition";
 const connectionString = 'mongodb+srv://adminuser:engage2022@cluster0.9okh4wu.mongodb.net/?retryWrites=true&w=majority'
-
 
 const REGION = "ap-south-1"; 
 const rekognitionClient = new RekognitionClient({ region: REGION });
 
+// This function sends the image data to Amazon Rekognition to detect faces
 const detect_faces = async (imageData) => {
   const params = {
     Image: {
@@ -32,13 +32,13 @@ const detect_faces = async (imageData) => {
 
   try {
     const response = await rekognitionClient.send(new DetectFacesCommand(params));
-    console.log(response.FaceDetails[0].EyesOpen)
     return (response.FaceDetails[0]); // For unit tests.
   } catch (err) {
     console.log("Error", err);
   }
 };
 
+// This function send image data to Amazon Rekognition to detect faces and labels (eg: mobile phone)
 const detect_faces_phones = async (imageData) => {
 
   const params1 = {
@@ -54,13 +54,15 @@ const detect_faces_phones = async (imageData) => {
     }
   }
 
-    const response1 = await rekognitionClient.send(new DetectFacesCommand(params1));
-    const response2 = await rekognitionClient.send(new DetectLabelsCommand(params2));
-    const [Result1, Result2] = await Promise.all([response1,response2])
-    return({
-      detectedFaceAttributes:Result1.FaceDetails[0],
-      Labels:Result2.Labels
-    })
+  const response1 = await rekognitionClient.send(new DetectFacesCommand(params1));
+  const response2 = await rekognitionClient.send(new DetectLabelsCommand(params2));
+
+  const [Result1, Result2] = await Promise.all([response1,response2])
+
+  return({
+    detectedFaceAttributes:Result1.FaceDetails[0],
+    Labels:Result2.Labels
+  })
 }
   
 
@@ -69,56 +71,58 @@ app.get('/', (req,res) =>{
 
 })
 
+//Recieves image data, detects faces and labels and returns detected attributes
 app.post('/sendImageBlob',upload.single('file'),(req,res) =>{
-    //console.log(req.body)
-    console.log(req.file.buffer)
-    console.log(req.body.useFocusMode)
-    //res.send(req.file)
-    let imageData = req.file.buffer;
+
+  let imageData = req.file.buffer;
+  
+  // If focus mode is ON, detect faces and labels
+  if(req.body.useFocusMode==="true"){
+
+    detect_faces_phones(imageData).then(({detectedFaceAttributes,Labels}) =>{
+
+      // Searching the array of labels for Mobile Phone label
+      const phoneIndex = Labels.findIndex(label => {
+            return label.Name === 'Mobile Phone'
+      })
+      const isPhoneDetected = phoneIndex>=0 ? true: false
+
+      res.json({
+        EyesOpen:detectedFaceAttributes.EyesOpen,
+        MouthOpen:detectedFaceAttributes.MouthOpen,
+        phoneDetected:isPhoneDetected
+      })
+    })
     
-    if(req.body.useFocusMode==="true"){
+  }
 
-      detect_faces_phones(imageData).then(({detectedFaceAttributes,Labels}) =>{
-        console.log(detectedFaceAttributes);
-        console.log(Labels);
-        //detecting Mobile Phone label from labels
-        const phoneIndex = Labels.findIndex(label => {
-              return label.Name === 'Mobile Phone'
-            })
-        const isPhoneDetected = phoneIndex>=0 ? true: false
+  // If focus mode id OFF, detect faces only
+  else {
+    detect_faces(imageData).then((detectedFaceAttributes) => {
 
-        res.json({
+      res.json({
           EyesOpen:detectedFaceAttributes.EyesOpen,
           MouthOpen:detectedFaceAttributes.MouthOpen,
-          phoneDetected:isPhoneDetected
-        })
-      })
-      
-    }
+          })
 
-    else {
-      detect_faces(imageData).then((detectedFaceAttributes) => {
-        console.log(detectedFaceAttributes);
-        res.json({
-            EyesOpen:detectedFaceAttributes.EyesOpen,
-            MouthOpen:detectedFaceAttributes.MouthOpen,
-            })
-        });
+      });
+  }
 
-    }
 })
 
+//Recieves date and time whenever an alert/alarm is sounded and posts it to database
 app.post('/sendAlertData',jsonParser,(req,res) => {
+
   const data = req.body
   MongoClient.connect(connectionString).then((client => {
+
     console.log("Database Connected!")
     var db = client.db('analytics-data')
     var alertData = db.collection('alert-data')
   
-  //console.log(data)
     alertData.insertOne(data)
     .then(result => {
-      console.log(result)
+      console.log("Data logged!")
     })
     .catch(err => {
       console.log(err)
@@ -129,28 +133,17 @@ app.post('/sendAlertData',jsonParser,(req,res) => {
 
 })
 
-app.get('/getAlertData',(req,res) => {
-
-  MongoClient.connect(connectionString).then(client => {
-    console.log("Database Connected!")
-    var db = client.db('analytics-data')
-    var alertData = db.collection('alert-data')
-    const data = alertData.find().toArray()
-    .then(results => {
-      console.log(results)
-      res.send(results)
-    })
-    .catch(err => console.log(err))
-  })
-})
-
+//Retrieves the alert statistics for the current date from database
 app.get('/getTodayData',(req,res) => {
 
   MongoClient.connect(connectionString).then(client => {
+
     console.log("Database Connected!")
     var db = client.db('analytics-data')
     var alertData = db.collection('alert-data')
+
     var today = new Date()
+
     const query = {
       'time.year': today.getFullYear(),
       'time.month': today.getMonth(),
@@ -159,16 +152,17 @@ app.get('/getTodayData',(req,res) => {
 
     const data = alertData.find(query).toArray()
     .then(results => {
-      console.log(results)
       res.send(results)
     })
     .catch(err => console.log(err))
   })
 })
 
+//Retrieves the alert statistics for the current week from database
 app.get('/getWeeklyData',(req,res) => {
 
   MongoClient.connect(connectionString).then(client => {
+
     console.log("Database Connected!")
     var db = client.db('analytics-data')
     var alertData = db.collection('alert-data')
@@ -183,9 +177,8 @@ app.get('/getWeeklyData',(req,res) => {
     // get last date of week
     const lastDayOfWeek = new Date(firstDayOfWeek);
     lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6);
-
-    console.log(lastDayOfWeek,firstDayOfWeek)
     
+    //queries date between first and last day of the week
     const query = {
       $and: [
         {'time.year':todayObj.getFullYear()},
@@ -199,24 +192,26 @@ app.get('/getWeeklyData',(req,res) => {
         }]}
       ]
     }
-    console.log(query)
-    
     
     const data = alertData.find(query).toArray()
     .then(results => {
-      console.log(results)
       res.send(results)
     })
     .catch(err => console.log(err))
+
   })
+
 })
 
+//Retrieves the alert statistics for the current month from database
 app.get('/getMonthlyData',(req,res) => {
 
   MongoClient.connect(connectionString).then(client => {
+
     console.log("Database Connected!")
     var db = client.db('analytics-data')
     var alertData = db.collection('alert-data')
+
     var today = new Date()
     const query = {
       'time.year': today.getFullYear(),
@@ -226,11 +221,12 @@ app.get('/getMonthlyData',(req,res) => {
 
     const data = alertData.find(query).toArray()
     .then(results => {
-      console.log(results)
       res.send(results)
     })
     .catch(err => console.log(err))
+
   })
+  
 })
 
 app.listen(port, ()=>{

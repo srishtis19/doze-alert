@@ -1,20 +1,18 @@
-import useSound from 'use-sound';
 import React from 'react';
-import { Snackbar } from '@mui/material';
-import { Alert } from '@mui/material';
-import { Slide } from '@mui/material';
+import useSound from 'use-sound';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import Slide from '@mui/material/Slide';
 
-//import Bell from '../assets/sounds/alerts/Bell.mp3';
 
 export default function SleepAlert(props) {
-
-    console.log(props)
 
     const alertTone = props.notifOptions.alertTone
     const volume = props.notifOptions.volume/100
     const alertUrl = `${process.env.PUBLIC_URL}/sounds/alerts/${alertTone}.mp3`
 
     const [play] = useSound(alertUrl,{volume:volume});
+
     const handleClose = ()=>{
         props.setState({
             ...props.state,
@@ -35,9 +33,11 @@ export default function SleepAlert(props) {
             onClose={handleClose}
             TransitionProps={{onEnter:handleEnter}}
         >
+
             <Alert severity="warning" sx={{ width: '100%', fontSize:'large', fontWeight:'bold'}}>
                 {props.state.alertText}
             </Alert>
+
         </Snackbar>
     )
 };

@@ -1,344 +1,345 @@
 import React from "react";
+import axios from "axios"
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import axios from "axios"
-import { Icon, Typography } from "@mui/material";
-import Webcam from "react-webcam"
-import { Button } from "@mui/material";
-import { useStopwatch } from 'react-timer-hook';
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
-import ArrowRightOutlinedIcon from '@mui/icons-material/ArrowRightOutlined';
 import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
-import { makeblob } from "../blob";
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
+import Webcam from "react-webcam"
+import { useStopwatch } from 'react-timer-hook';
+import { makeblob } from "../utils/blob";
 import SleepAlert from "./Alert";
 import AlarmDialog from "./AlarmDialog";
-// import DrowsinessAlert from "../utils/Alert";
 import { sendAlertData } from "../utils/sendAlertData";
-import WbSunnyIcon from '@mui/icons-material/WbSunny';
+
 
 export default function Main(props){
 
+    const webcamRef = React.useRef(null);
+
+    // Store the current monitoring status
+    const [state, setState] = React.useState({
+        statusText:"Focussed",
+        alertText:"",
+        isOpen:false
+    });
+
+    const [isAlarmOpen,setIsAlarmOpen] = React.useState(false)
+    const [isMonitoring, setIsMonitoring] = React.useState(false)
+
+    // These variable store the number of times yawning/sleeping/phone usage was detected
+    // A Yawn Alert Sounds when the respective alert count is 1
+    // A Sleep Alert Sounds when the respective alert count is 2
+    // A Focus Alert Sounds when the respective alert count is 3
+    // A Sleep Alarm Sounds when the respective alarm count is 6
+    // This is to make sure that events like blinking of an eye are not mistakenly identified, leading to false alerts
+    var alarmCount = 0
+    var sleepAlertCount = 0
+    var yawnAlertCount = 0
+    var phoneCount = 0
+
+    const alertMessages = ['Walk it Out: Go and get some air to freshen up!',
+                            'Feeling Sleepy? Eat healthy snacks to keep yourself energized!',
+                            'Drowsy? Take a short break, listen to your favourite music to refresh!']
+
+    //This function posts the image data captured to the backend and recieves the detected face data back
+    const submitImage = (blob) =>{
+
+        let URL = "http://localhost:8080/sendImageBlob";
+        let data = new FormData;
+    
+        data.append('file',blob,'face_image');
+        data.append('useFocusMode',props.focusMode? true:false );
         
+        axios.post(URL, data)
+        .then(response => {
 
-        const webcamRef = React.useRef(null);
-        const [state, setState] = React.useState({
-            statusText:"Focussed",
-            alertText:"",
-            isOpen:false
-        });
-        const [isAlarmOpen,setIsAlarmOpen] = React.useState(false)
-        const [isMonitoring, setIsMonitoring] = React.useState(false)
-        var alarmCount = 0
-        var sleepAlertCount = 0
-        var yawnAlertCount = 0
-        var phoneCount = 0
-        const alertMessages = ['Walk it Out: Go and get some air to freshen up!','Feeling Sleepy? Eat healthy snacks to keep yourself energized!',
-                                'Drowsy? Take a short break, listen to your favourite music to refresh!']
-
-        const submitImage = (blob) =>{
-            let data = new FormData;
-            let URL = "http://localhost:8080/sendImageBlob";
-            //console.log(blob)
-            data.append('file',blob,'face_image');
-            data.append('useFocusMode',props.focusMode?true:false);
-            //console.log(...data) 
-            
-            axios.post(URL, data)
-            .then(response => {
-                //console.log('response', response)
-                const Attributes = response.data
-                console.log(Attributes)
-                // if(!faceAttributes.EyesOpen.Value){
-                //     setState("Drowsiness Detected!")
-                // }
-                // else if(faceAttributes.MouthOpen.Value){
-                //     setState("Yawn Detected!")
-                // }
-                // else {
-                //     setState("Focussed")
-                // }
-                if(props.focusMode){
-                    handleFocusAlerts(Attributes)
-                }
-                else{
-                    handleSleepAlerts(Attributes)
-                }
-                
-               
-              }).catch(error => {
-                console.log('error', error)
-              })
-            console.log("submitted!")
-        }
-
-        React.useEffect(() => {
-            if(isMonitoring){
-                const interval = setInterval(() => {
-                const imageSrc = webcamRef.current.getScreenshot();
-                const blob = makeblob(imageSrc)
-                //console.log(blob)
-                submitImage(blob);
-                }, 4000);
-                return () => clearInterval(interval);
-            }
-        }, [isMonitoring]);
-
-        const {
-            seconds,
-            minutes,
-            hours,
-            isRunning,
-            start,
-            pause,
-            reset,
-          } = useStopwatch({ autoStart:false});
-        
-        const handleMonitoring = () =>{
-
-            if(isRunning){
-                pause();
+            const Attributes = response.data
+            if(props.focusMode){
+                handleFocusAlerts(Attributes)
             }
             else{
-                start();
+                handleSleepAlerts(Attributes)
             }
-            setIsMonitoring((prevState)=>!prevState)
+        })
+        .catch(error => {
+            console.log('error', error)
+         })
+
+    }
+
+    // This hooks captures image from Webcam every 3 seconds when monitoring is enabled and submits it to backend
+    React.useEffect(() => {
+
+        if(isMonitoring){
+
+            const interval = setInterval(() => {
+            const imageSrc = webcamRef.current.getScreenshot();
+            const blob = makeblob(imageSrc)
+
+            submitImage(blob);
+            }, 3000);
+
+            return () => clearInterval(interval);
+        }
+
+    }, [isMonitoring]);
+
+    const {
+        seconds,
+        minutes,
+        hours,
+        isRunning,
+        start,
+        pause,
+        reset,
+        } = useStopwatch({ autoStart:false});
+        
+    const handleMonitoring = () => {
+
+        if(isRunning){
+            pause();
+        }
+        else{
+            start();
+        }
+
+        setIsMonitoring((prevState)=>!prevState)
+
+        sleepAlertCount = 0
+        yawnAlertCount = 0
+        alarmCount = 0
+
+    }
+
+    //This function performs the required tasks depending on the face data detected
+    const handleSleepAlerts = (faceData) =>{
+
+        // Step-1: Update Alert and Alarm Counts
+
+        //Yawning detected
+        if(faceData.MouthOpen.Value){
+
+            //Increment Yawn Alert Count and Alarm Count 
+            //Reset Sleep Count
+            yawnAlertCount++
+            sleepAlertCount = 0
+            alarmCount++
+        }
+
+        //Closed Eyes detected
+        else if(!faceData.EyesOpen.Value){
+
+            //Increment Sleep Alert Count and Alarm Count
+            //Reset Yawn Alert Count
+            sleepAlertCount++
+            yawnAlertCount = 0
+            alarmCount++
+        }
+
+        //No sleep attribute detected
+        else {
+
+            //Reset all counts
             sleepAlertCount = 0
             yawnAlertCount = 0
             alarmCount = 0
         }
 
-        const handleSleepAlerts = (faceData) =>{
+        //Step-2: Perform actions based on the alert and alarm counts
 
-            // console.log(eyesClosedArray)
-            // const newArray = eyesClosedArray.map(value => {return value})
-            // newArray.pop();
-            // newArray.push(!faceData.EyesOpen.Value);
-            // setEyesClosedArray(newArray)
-            // console.log(eyesClosedArray)
+        if(alarmCount===6){
 
-            // if(eyesClosedArray.every(element => element===true)){
-            //     console.log("sound alarm!")
-            //     //setIsMonitoring(false);
-                
-            //     //sound alarm
-            //     //set isMonitoring as false
-            //     //create a modal
-            //     //set isMonitroing as true only after modal closed
-            //     //last 3 in another component
-            // }
-            // console.log(alertCount)
-            // if(alertCount===3){
-            //     //sound alarm and modal
-            //     setIsMonitoring(false)
-            //     setIsAlarmOpen(true)
-            //     console.log("User is Sleeping!")
-                
-                
-            // }
-        
-            // else if(!faceData.EyesOpen.Value){
-            //     setState({
-            //         statusText:"Drowsiness Detected!",
-            //         alertText:"Some motivational text regarding drowsiness",
-            //         isOpen:true
-            //     })
-            //     alertCount = alertCount+1;
-                
+            //Reset Alarm Count
+            alarmCount = 0
 
-            // }
-        
-            // else if(faceData.MouthOpen.Value){
-            //     setState({
-            //         statusText:"Yawning Detected!",
-            //         alertText:"Some motivational text regarding yawn",
-            //         isOpen:true
-            //     })
-                
-            // }
-
-            // else {
-            //     setState({
-            //         statusText:"Focussed",
-            //         alertText:"",
-            //         isOpen:false
-            //     });
-            //     alertCount = 0;
-            // }
-
-            if(faceData.MouthOpen.Value){
-                yawnAlertCount++
-                sleepAlertCount = 0
-                alarmCount++
-            }
-
-            else if(!faceData.EyesOpen.Value){
-                sleepAlertCount++
-                yawnAlertCount = 0
-                alarmCount++
-            }
-            else {
-                sleepAlertCount = 0
-                yawnAlertCount = 0
-                alarmCount = 0
-            }
-
-            if(alarmCount===6){
-
-                alarmCount = 0
-                sendAlertData('Sleep Alarm')
-                setIsMonitoring(false)
-                setIsAlarmOpen(true)
-                
-                //sound alarm
-                //stop monitoring
-                //reset alarm count
-
-            }
-
-            else if(yawnAlertCount===1){
-                //sound alert
-                //reset yawn alert count
-                yawnAlertCount = 0
-                sendAlertData('Yawn Alert')
-                const randomMessage = alertMessages[Math.floor(Math.random() * alertMessages.length)];
-                setState({
-                    statusText:"Yawning Detected!",
-                    alertText:randomMessage,
-                    isOpen:true
-                })
-
-
-            }
-
-            else if(sleepAlertCount===2){
-                //sound alert
-                //reset sleep alert count
-                sleepAlertCount = 0
-                sendAlertData('Sleep Alert')
-                const randomMessage = alertMessages[Math.floor(Math.random() * alertMessages.length)];
-                setState({
-                    statusText:"Drowsiness Detected!",
-                    alertText:randomMessage,
-                    isOpen:true
-                })
-            }
-            else if(sleepAlertCount==1){
-                setState({
-                    ...state,
-                    statusText:"Drowsiness Possible!"
-                })
-            }
-
-            else {
-                //focussed state
-                setState({
-                    statusText:"Focussed",
-                    alertText:"",
-                    isOpen:false
-                });
-            }
+            //Sound Alarm
+            //Stop monitoring(until user responds to alarm)
+            sendAlertData('Sleep Alarm')
+            setIsMonitoring(false)
+            setIsAlarmOpen(true)
 
         }
 
-        const handleFocusAlerts = (Attributes) => {
+        else if(yawnAlertCount===1){
+            
+            //Reset Yawn Alert Count
+            yawnAlertCount = 0
 
-            if(Attributes.phoneDetected){
-                phoneCount++   
-            }
-            else {
-                phoneCount = 0
-                handleSleepAlerts(Attributes)
-            }
-            if(phoneCount==3){
+            //Sound Yawn Alert
+            sendAlertData('Yawn Alert')
 
-                phoneCount=0
-                sendAlertData('Focus Alert')
-                setState({
-                    statusText:"Using phone!",
-                    alertText:"Focus! Put your phone down, pick your work up :))",
-                    isOpen:true
-                })
-                
-            }
+            const randomMessage = alertMessages[Math.floor(Math.random() * alertMessages.length)];
 
-            else if(phoneCount==2){
-                setState({
-                    ...state,
-                    statusText:"Possiblly using phone"
-                })
-            }
+            setState({
+                statusText:"Yawning Detected!",
+                alertText:randomMessage,
+                isOpen:true
+            })
 
         }
 
+        else if(sleepAlertCount===2){
+
+            //Reset Sleep Alert Count
+            sleepAlertCount = 0
+            
+            //Sound Sleep Alert
+            sendAlertData('Sleep Alert')
+
+            const randomMessage = alertMessages[Math.floor(Math.random() * alertMessages.length)];
+
+            setState({
+                statusText:"Drowsiness Detected!",
+                alertText:randomMessage,
+                isOpen:true
+            })
+        }
+
+        else if(sleepAlertCount==1){
+
+            setState({
+                ...state,
+                statusText:"Drowsiness Possible!"
+            })
+        }
+
+        else {
+
+            setState({
+                statusText:"Focussed",
+                alertText:"",
+                isOpen:false
+            });
+        }
+
+    }
+
+    const handleFocusAlerts = (Attributes) => {
+
+        //Step-1: Update alert and alarm counts
+        if(Attributes.phoneDetected){
+            phoneCount++   
+        }
+
+        else {
+            phoneCount = 0
+            handleSleepAlerts(Attributes)
+        }
+
+        if(phoneCount==3){
+
+            //Reset phone count
+            phoneCount=0
+
+            //Sound Focus Alert
+            sendAlertData('Focus Alert')
+            setState({
+                statusText:"Using phone!",
+                alertText:"Focus! Put your phone down, pick your work up :))",
+                isOpen:true
+            })
+            
+        }
+
+        else if(phoneCount==2){
+
+            setState({
+                ...state,
+                statusText:"Possibly using phone"
+            })
+        }
+    }
 
     return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <SleepAlert 
-            state={state} 
-            setState={setState} 
-            notifOptions = {props.notifOptions} 
-        />
-        <AlarmDialog 
-            open = {isAlarmOpen} 
-            setOpen = {setIsAlarmOpen}
-            setIsMonitoring = {setIsMonitoring}
-            pause = {pause}
-            notifOptions = {props.notifOptions} 
-        />
-        <Box 
-            sx={{ 
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}>
-            <Typography variant="h5" className="greetText" sx={{fontWeight:'500'}}>
-                <Stack direction="row" alignItems="center">Conquer the day (and night!) with Doze Alert! <WbSunnyIcon fontSize="large" sx={{color:'#4285F4', margin:'10px'}}></WbSunnyIcon></Stack>
-            </Typography>
-            <Box className="webcamContainer">
-                <Stack direction="row" spacing={2} className="alert">
-                    <CrisisAlertIcon 
-                        sx={{
-                            color:'#2C7CDB'
-                        }}
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+
+            {/* Alert Bar */}
+            <SleepAlert 
+                state={state} 
+                setState={setState} 
+                notifOptions = {props.notifOptions} 
+            />
+
+            {/* Alarm Dialog Box */}
+            <AlarmDialog 
+                open = {isAlarmOpen} 
+                setOpen = {setIsAlarmOpen}
+                setIsMonitoring = {setIsMonitoring}
+                pause = {pause}
+                notifOptions = {props.notifOptions} 
+            />
+
+            <Box 
+                sx={{ 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}>
+
+                {/* Greeting Text */}
+                <Typography variant="h5" className="greetText" sx={{fontWeight:'500'}}>
+                    <Stack direction="row" alignItems="center">
+                        Conquer the day (and night!) with Doze Alert! 
+                        <WbSunnyIcon fontSize="large" sx={{color:'#4285F4', margin:'10px'}} />
+                    </Stack>
+                </Typography>
+
+                {/* Webcam */}
+                <Box className="webcamContainer">
+
+                    <Stack direction="row" spacing={2} className="alert">
+                        <CrisisAlertIcon 
+                            sx={{
+                                color:'#2C7CDB'
+                            }}
+                        />
+                        <Typography variant="body1">
+                            {state.statusText}
+                        </Typography>
+                    </Stack>
+
+                    <Box className="timer" >
+                        {hours!==0 && <span>{hours<10 && 0}{hours}</span>}
+                        {minutes!==0 && <span>:{minutes<10 && 0}{minutes}</span>}
+                        :{seconds<10 && 0}<span>{seconds}</span>
+                    
+                    </Box>
+
+                    <Webcam
+                        width={800}
+                        height={600}
+                        className="webcam"
+                        audio={false}
+                        ref={webcamRef}
+                        screenshotFormat="image/jpeg"
                     />
-                    <Typography variant="body1">
-                        {state.statusText}
-                    </Typography>
-                </Stack>
-                <Box className="timer" >
-                    {hours!==0 && <span>{hours<10 && 0}{hours}</span>}
-                    {minutes!==0 && <span>:{minutes<10 && 0}{minutes}</span>}
-                    :{seconds<10 && 0}<span>{seconds}</span>
-                   
                 </Box>
-                <Webcam
-                    width={800}
-                    height={600}
-                    className="webcam"
-                    audio={false}
-                    ref={webcamRef}
-                    screenshotFormat="image/jpeg"
-                />
+
+                {/* Button to start/stop monitoring */}
+                <Button 
+                    variant="contained" 
+                    size="large"
+                    uppercase={false}
+                    sx={{
+                        background: 'linear-gradient(96.79deg, #4285F4 0%, #186EFC 100%)',
+                        boxShadow: '0px 0px 10px rgba(41, 132, 255, 0.56)',
+                        borderRadius: '8px',
+                        color:'white',
+                        padding: '16px',
+                        textTransform:'none',
+                    }} 
+                    startIcon={<HourglassTopIcon />}
+                    onClick = {handleMonitoring}
+                >
+                    <Typography variant="h6"> {isRunning? `Take a break!`: `Start Monitoring >>`} </Typography>  
+                </Button>
+
             </Box>
-            <Button 
-                variant="contained" 
-                size="large"
-                uppercase={false}
-                sx={{
-                    background: 'linear-gradient(96.79deg, #4285F4 0%, #186EFC 100%)',
-                    boxShadow: '0px 0px 10px rgba(41, 132, 255, 0.56)',
-                    borderRadius: '8px',
-                    color:'white',
-                    padding: '16px',
-                    textTransform:'none',
-                }} 
-                startIcon={<HourglassTopIcon />}
-                onClick = {handleMonitoring}
-                //endIcon={<ArrowRightOutlinedIcon />}
-            >
-                <Typography variant="h6"> {isRunning? `Take a break!`: `Start Monitoring >>`} </Typography>  
-            </Button>
+            
         </Box>
-    </Box>)
+    )
 
 }

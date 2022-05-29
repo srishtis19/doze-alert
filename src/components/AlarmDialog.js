@@ -7,19 +7,17 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-// import Glory from '../assets/sounds/alarms/Glory.mp3';
-import { textAlign } from "@mui/system";
 
 
 export default function AlarmDialog(props){
-    console.log(props)
-
+    
     const alarmTone = props.notifOptions.alarmTone
     const volume = props.notifOptions.volume/100
     const alarmUrl = `${process.env.PUBLIC_URL}/sounds/alarms/${alarmTone}.mp3`
+
     const [play,{stop}] = useSound(alarmUrl,{volume:volume});
 
-    const handleClose = ()=>{
+    const handleClose = () => {
         stop();
         props.setOpen(false);
         props.setIsMonitoring(true);
@@ -31,20 +29,21 @@ export default function AlarmDialog(props){
         props.setOpen(false);
     }
 
-    const handleEnter = ()=>{
+    const handleEnter = () => {
         play();
     }
 
     return(
-        <Dialog
+      <Dialog
         open={props.open}
         onClose={handleClose}
         TransitionProps={{onEnter:handleEnter}} 
         disableEscapeKeyDown
-        >
+      >
         <DialogTitle sx={{textAlign:'center'}}>
           {"Wake up, soldier!"}
         </DialogTitle>
+
         <DialogContent>
           <DialogContentText>
             <Stack direction="row" alignItems="center">
@@ -53,12 +52,14 @@ export default function AlarmDialog(props){
             </Stack>
           </DialogContentText>
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handleSnooze}>Let me sleep!</Button>
           <Button onClick={handleClose} autoFocus>
             Yes I'm up!
           </Button>
         </DialogActions>
+        
       </Dialog>
 
     )
