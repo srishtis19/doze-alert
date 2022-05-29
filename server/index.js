@@ -12,9 +12,12 @@ app.use(bodyParser.json())
 app.use(cors())
 const port = 8080;
 const {RekognitionClient, DetectFacesCommand, DetectLabelsCommand} = require('@aws-sdk/client-rekognition');
-const { response } = require('express');
+const MongoClient = require('mongodb').MongoClient
+
 // import { DetectFacesCommand } from  "@aws-sdk/client-rekognition";
 // import  { RekognitionClient } from "@aws-sdk/client-rekognition";
+const connectionString = 'mongodb+srv://adminuser:engage2022@cluster0.9okh4wu.mongodb.net/?retryWrites=true&w=majority'
+
 
 const REGION = "ap-south-1"; 
 const rekognitionClient = new RekognitionClient({ region: REGION });
@@ -103,6 +106,131 @@ app.post('/sendImageBlob',upload.single('file'),(req,res) =>{
         });
 
     }
+})
+
+app.post('/sendAlertData',jsonParser,(req,res) => {
+  const data = req.body
+  MongoClient.connect(connectionString).then((client => {
+    console.log("Database Connected!")
+    var db = client.db('analytics-data')
+    var alertData = db.collection('alert-data')
+  
+  //console.log(data)
+    alertData.insertOne(data)
+    .then(result => {
+      console.log(result)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }))
+
+  res.json(data)
+
+})
+
+app.get('/getAlertData',(req,res) => {
+
+  MongoClient.connect(connectionString).then(client => {
+    console.log("Database Connected!")
+    var db = client.db('analytics-data')
+    var alertData = db.collection('alert-data')
+    const data = alertData.find().toArray()
+    .then(results => {
+      console.log(results)
+      res.send(results)
+    })
+    .catch(err => console.log(err))
+  })
+})
+
+app.get('/getTodayData',(req,res) => {
+
+  MongoClient.connect(connectionString).then(client => {
+    console.log("Database Connected!")
+    var db = client.db('analytics-data')
+    var alertData = db.collection('alert-data')
+    var today = new Date()
+    const query = {
+      'time.year': today.getFullYear(),
+      'time.month': today.getMonth(),
+      'time.date': today.getDate()
+    }
+
+    const data = alertData.find(query).toArray()
+    .then(results => {
+      console.log(results)
+      res.send(results)
+    })
+    .catch(err => console.log(err))
+  })
+})
+
+app.get('/getWeeklyData',(req,res) => {
+
+  MongoClient.connect(connectionString).then(client => {
+    console.log("Database Connected!")
+    var db = client.db('analytics-data')
+    var alertData = db.collection('alert-data')
+    
+    const todayObj = new Date();
+    const todayDate = todayObj.getDate();
+    const todayDay = todayObj.getDay();
+  
+    // get first date of week
+    const firstDayOfWeek = new Date(todayObj.setDate(todayDate - todayDay));
+  
+    // get last date of week
+    const lastDayOfWeek = new Date(firstDayOfWeek);
+    lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6);
+
+    console.log(lastDayOfWeek,firstDayOfWeek)
+    
+    const query = {
+      $and: [
+        {'time.year':todayObj.getFullYear()},
+        {$or:[{
+          'time.month':firstDayOfWeek.getMonth(),
+          'time.date':{$gt:firstDayOfWeek.getDate()-1}
+        },
+        {
+          'time.month':lastDayOfWeek.getMonth(),
+          'time.date':{$lt:lastDayOfWeek.getDate()+1}
+        }]}
+      ]
+    }
+    console.log(query)
+    
+    
+    const data = alertData.find(query).toArray()
+    .then(results => {
+      console.log(results)
+      res.send(results)
+    })
+    .catch(err => console.log(err))
+  })
+})
+
+app.get('/getMonthlyData',(req,res) => {
+
+  MongoClient.connect(connectionString).then(client => {
+    console.log("Database Connected!")
+    var db = client.db('analytics-data')
+    var alertData = db.collection('alert-data')
+    var today = new Date()
+    const query = {
+      'time.year': today.getFullYear(),
+      'time.month': today.getMonth(),
+
+    }
+
+    const data = alertData.find(query).toArray()
+    .then(results => {
+      console.log(results)
+      res.send(results)
+    })
+    .catch(err => console.log(err))
+  })
 })
 
 app.listen(port, ()=>{

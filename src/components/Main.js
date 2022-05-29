@@ -13,6 +13,7 @@ import { makeblob } from "../blob";
 import SleepAlert from "./Alert";
 import AlarmDialog from "./AlarmDialog";
 // import DrowsinessAlert from "../utils/Alert";
+import { sendAlertData } from "../utils/sendAlertData";
 
 export default function Main(props){
 
@@ -74,7 +75,7 @@ export default function Main(props){
                 const blob = makeblob(imageSrc)
                 //console.log(blob)
                 submitImage(blob);
-                }, 5000);
+                }, 4000);
                 return () => clearInterval(interval);
             }
         }, [isMonitoring]);
@@ -181,9 +182,10 @@ export default function Main(props){
             if(alarmCount===6){
 
                 alarmCount = 0
+                sendAlertData('Sleep Alarm')
                 setIsMonitoring(false)
                 setIsAlarmOpen(true)
-
+                
                 //sound alarm
                 //stop monitoring
                 //reset alarm count
@@ -194,6 +196,7 @@ export default function Main(props){
                 //sound alert
                 //reset yawn alert count
                 yawnAlertCount = 0
+                sendAlertData('Yawn Alert')
                 setState({
                     statusText:"Yawning Detected!",
                     alertText:"Some motivational text regarding yawn",
@@ -207,10 +210,17 @@ export default function Main(props){
                 //sound alert
                 //reset sleep alert count
                 sleepAlertCount = 0
+                sendAlertData('Sleep Alert')
                 setState({
                     statusText:"Drowsiness Detected!",
                     alertText:"Some motivational text regarding drowsiness",
                     isOpen:true
+                })
+            }
+            else if(sleepAlertCount==1){
+                setState({
+                    ...state,
+                    statusText:"Drowsiness Possible!"
                 })
             }
 
@@ -237,12 +247,20 @@ export default function Main(props){
             if(phoneCount==3){
 
                 phoneCount=0
+                sendAlertData('Focus Alert')
                 setState({
                     statusText:"Using Phone!",
                     alertText:"Don't use your phone pls",
                     isOpen:true
                 })
                 
+            }
+
+            else if(phoneCount==2){
+                setState({
+                    ...state,
+                    statusText:"Possible usage of phone"
+                })
             }
 
         }

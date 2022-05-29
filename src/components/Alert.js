@@ -30,7 +30,7 @@ export default function SleepAlert(props) {
         <Snackbar 
             anchorOrigin = {{vertical:'top',horizontal:'center'}}  
             open={props.state.isOpen} 
-            autoHideDuration={3000}
+            autoHideDuration={4000}
             TransitionComponent={Slide}
             onClose={handleClose}
             TransitionProps={{onEnter:handleEnter}}

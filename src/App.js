@@ -7,6 +7,7 @@ import ViewAnalytics from './components/ViewAnalytics';
 import Box from '@mui/material/Box';
 import Settings from './components/Settings';
 import React from 'react';
+import TestButton from './components/Test';
 
 
 const theme = createTheme({
@@ -71,7 +72,7 @@ function App() {
             />
             <Route path='view-analytics' element={<ViewAnalytics />} />
           </Routes>
-          
+          {/* <TestButton /> */}
         </Box>
       </ThemeProvider>
     </BrowserRouter>
