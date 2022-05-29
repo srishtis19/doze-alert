@@ -43,21 +43,20 @@ export default function AlarmDialog(props){
         disableEscapeKeyDown
         >
         <DialogTitle sx={{textAlign:'center'}}>
-          {"User is Sleeping!"}
+          {"Wake up, soldier!"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
             <Stack direction="row" alignItems="center">
                 <img src="https://media.giphy.com/media/l4HodvFAU681KEBwI/giphy.gif" width={250} />
-                Let Google help apps determine location. This means sending anonymous
-                location data to Google, even when no apps are running.
+                Don't fall back, you're almost there! Take a deep breath and get back to work. Let's do this!
             </Stack>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleSnooze}>Let me sleep!</Button>
           <Button onClick={handleClose} autoFocus>
-            Okay I'm up!
+            Yes I'm up!
           </Button>
         </DialogActions>
       </Dialog>

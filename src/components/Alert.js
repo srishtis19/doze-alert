@@ -35,7 +35,7 @@ export default function SleepAlert(props) {
             onClose={handleClose}
             TransitionProps={{onEnter:handleEnter}}
         >
-            <Alert severity="warning" sx={{ width: '100%' }}>
+            <Alert severity="warning" sx={{ width: '100%', fontSize:'large', fontWeight:'bold'}}>
                 {props.state.alertText}
             </Alert>
         </Snackbar>

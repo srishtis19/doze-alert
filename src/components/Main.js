@@ -14,6 +14,7 @@ import SleepAlert from "./Alert";
 import AlarmDialog from "./AlarmDialog";
 // import DrowsinessAlert from "../utils/Alert";
 import { sendAlertData } from "../utils/sendAlertData";
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
 
 export default function Main(props){
 
@@ -31,6 +32,8 @@ export default function Main(props){
         var sleepAlertCount = 0
         var yawnAlertCount = 0
         var phoneCount = 0
+        const alertMessages = ['Walk it Out: Go and get some air to freshen up!','Feeling Sleepy? Eat healthy snacks to keep yourself energized!',
+                                'Drowsy? Take a short break, listen to your favourite music to refresh!']
 
         const submitImage = (blob) =>{
             let data = new FormData;
@@ -197,9 +200,10 @@ export default function Main(props){
                 //reset yawn alert count
                 yawnAlertCount = 0
                 sendAlertData('Yawn Alert')
+                const randomMessage = alertMessages[Math.floor(Math.random() * alertMessages.length)];
                 setState({
                     statusText:"Yawning Detected!",
-                    alertText:"Some motivational text regarding yawn",
+                    alertText:randomMessage,
                     isOpen:true
                 })
 
@@ -211,9 +215,10 @@ export default function Main(props){
                 //reset sleep alert count
                 sleepAlertCount = 0
                 sendAlertData('Sleep Alert')
+                const randomMessage = alertMessages[Math.floor(Math.random() * alertMessages.length)];
                 setState({
                     statusText:"Drowsiness Detected!",
-                    alertText:"Some motivational text regarding drowsiness",
+                    alertText:randomMessage,
                     isOpen:true
                 })
             }
@@ -249,8 +254,8 @@ export default function Main(props){
                 phoneCount=0
                 sendAlertData('Focus Alert')
                 setState({
-                    statusText:"Using Phone!",
-                    alertText:"Don't use your phone pls",
+                    statusText:"Using phone!",
+                    alertText:"Focus! Put your phone down, pick your work up :))",
                     isOpen:true
                 })
                 
@@ -259,7 +264,7 @@ export default function Main(props){
             else if(phoneCount==2){
                 setState({
                     ...state,
-                    statusText:"Possible usage of phone"
+                    statusText:"Possiblly using phone"
                 })
             }
 
@@ -286,8 +291,8 @@ export default function Main(props){
                 flexDirection: 'column',
                 alignItems: 'center',
             }}>
-            <Typography variant="h5" component="div" className="greetText">
-                Random text here to greet the user!
+            <Typography variant="h5" className="greetText" sx={{fontWeight:'500'}}>
+                <Stack direction="row" alignItems="center">Conquer the day (and night!) with Doze Alert! <WbSunnyIcon fontSize="large" sx={{color:'#4285F4', margin:'10px'}}></WbSunnyIcon></Stack>
             </Typography>
             <Box className="webcamContainer">
                 <Stack direction="row" spacing={2} className="alert">
@@ -331,7 +336,7 @@ export default function Main(props){
                 onClick = {handleMonitoring}
                 //endIcon={<ArrowRightOutlinedIcon />}
             >
-                <Typography variant="h6"> {isRunning? `Take a break!`: `Start Focussing >>`} </Typography>  
+                <Typography variant="h6"> {isRunning? `Take a break!`: `Start Monitoring >>`} </Typography>  
             </Button>
         </Box>
     </Box>)

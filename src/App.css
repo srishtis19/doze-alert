@@ -5,6 +5,9 @@
 .greetText {
   padding-top:20px;
   padding-bottom:25px;
+  max-width: 800px;
+  text-align: center;
+
 }
 
 .menuButton.Mui-selected {
