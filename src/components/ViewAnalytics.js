@@ -170,7 +170,6 @@ export default function ViewAnalytics(){
                 justifyContent='space-between'
                 sx={{
                     alignItems:'center',
-                    marginTop:'100px',
                 }}
             >
 
@@ -244,7 +243,7 @@ export default function ViewAnalytics(){
                 height={350} 
                 width={600}
              />
-             
+
         </Box>
     )
 }
